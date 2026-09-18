@@ -30,3 +30,6 @@
 @font-face { font-family: 'helvetica-w01-roman'; src: local('Helvetica Neue'), local('HelveticaNeue'), local('Helvetica'), local('Arial'); font-weight: 100 900; }
 @font-face { font-family: 'avenir-lt-w01_35-light1475496'; src: local('Avenir Light'), local('Avenir-Light'), url('/assets/fonts/Jost-Light.woff2') format('woff2'); font-weight: 100 900; }
 @font-face { font-family: 'din-next-w01-light'; src: local('DIN Next LT Pro Light'), url('/assets/fonts/Jost-Light.woff2') format('woff2'); font-weight: 100 900; }
+
+/* Mobile menu: keep the close (X) icon at the top-right corner while the menu is open (Wix left it at the burger's document position) */
+#MENU_AS_CONTAINER_TOGGLE.d0L2ow { position: fixed !important; top: 14px !important; right: 14px !important; left: auto !important; margin: 0 !important; }

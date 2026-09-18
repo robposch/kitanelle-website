@@ -7,6 +7,10 @@
   var prefix = BASE + (isMobile ? '/m' : '');
 
   // --- Language selector (DE / FR) ---
+  function goToLanguage(lang) {
+    var rest = pathNoBase.replace(/^\/m(?=\/)/, '').replace(/^\/fr(?=\/|$)/, '');
+    location.href = prefix + (lang === 'de' ? (rest || '/') : '/fr' + (rest === '/' ? '/' : rest || '/'));
+  }
   document.querySelectorAll('[data-testid="languages-dropdown-handle"]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
@@ -16,10 +20,14 @@
   });
   document.querySelectorAll('[role="menuitem"][data-testid^="dropdown-option-"]').forEach(function (opt) {
     opt.addEventListener('click', function () {
-      var lang = opt.getAttribute('data-testid').replace('dropdown-option-', '');
-      var rest = pathNoBase.replace(/^\/m(?=\/)/, '').replace(/^\/fr(?=\/|$)/, '');
-      location.href = prefix + (lang === 'de' ? (rest || '/') : '/fr' + (rest === '/' ? '/' : rest || '/'));
+      goToLanguage(opt.getAttribute('data-testid').replace('dropdown-option-', ''));
     });
+  });
+  // Mobile: Wix overlays an invisible native <select> on the language button
+  document.querySelectorAll('[data-testid="language-selector-container"] select').forEach(function (sel) {
+    var current = /^\/fr(\/|$)/.test(pathNoBase.replace(/^\/m(?=\/)/, '')) ? 'fr' : 'de';
+    sel.value = current;
+    sel.addEventListener('change', function () { goToLanguage(sel.value); });
   });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('[data-testid="languages-dropdown-handle-container"]')) {

@@ -1,0 +1,15 @@
+{
+  "name": "kitanelle-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node tools/capture.mjs",
+    "diff": "node tools/diff.mjs",
+    "serve": "python3 -m http.server 8080"
+  },
+  "devDependencies": {
+    "playwright": "^1.58.0",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0"
+  }
+}

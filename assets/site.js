@@ -62,6 +62,8 @@
       entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.remove('kn-hidden'); io.unobserve(en.target); } });
     }, { threshold: 0.15 });
     animated.forEach(function (el) { io.observe(el); });
+    // safety net: never leave content hidden (e.g. if the observer misbehaves)
+    setTimeout(function () { animated.forEach(function (el) { el.classList.remove('kn-hidden'); }); }, 4000);
   }
 
   // --- Anchor links inside the page ---

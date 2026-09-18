@@ -7,6 +7,9 @@ import path from 'node:path';
 const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
 const DIST = path.join(ROOT, 'dist');
 const BASE = (process.env.BASE || '').replace(/\/$/, '');
+const PROD_ORIGIN = 'https://www.kitanelle-coccinelle.de';
+const ORIGIN = process.env.SITE_ORIGIN || (BASE ? 'https://poschenrieder.io' : PROD_ORIGIN);
+const SITE = ORIGIN + BASE; // absolute prefix for canonical / og / hreflang
 
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
@@ -20,8 +23,17 @@ function* walk(dir) {
 }
 
 function rewrite(text, ext) {
-  if (!BASE) return text;
   let t = text;
+  if (ext === '.html') {
+    // absolute URLs for search engines and link previews
+    t = t.replace(/(<meta property="og:image" content=")\//, `$1${SITE}/`);
+    t = t.replace(/(<link rel="alternate"[^>]*href=")\//g, `$1${SITE}/`);
+    if (BASE) {
+      t = t.replace(new RegExp(`(<link rel="canonical" href="|<meta property="og:url" content=")${PROD_ORIGIN}`, 'g'), `$1${SITE}`);
+      t = t.replace('</head>', '<meta name="robots" content="noindex">\n</head>'); // preview must not be indexed
+    }
+  }
+  if (!BASE) return t;
   if (ext === '.html') {
     t = t.replace(/(href|src|action|content)="\/(?!\/)/g, `$1="${BASE}/`);
     t = t.replace(/url\((['"]?)\/(?!\/)/g, `url($1${BASE}/`);

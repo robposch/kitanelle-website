@@ -3,7 +3,7 @@
   'use strict';
   var BASE = '';
   var pathNoBase = location.pathname.slice(BASE.length);
-  var isMobile = pathNoBase.indexOf('/m/') === 0;
+  var isMobile = /^\/m(\/|$)/.test(pathNoBase);
   var prefix = BASE + (isMobile ? '/m' : '');
 
   // --- Language selector (DE / FR) ---
@@ -61,6 +61,17 @@
     toggle.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); } });
     menu.querySelectorAll('a[href]').forEach(function (a) { a.addEventListener('click', function () { setOpen(false); }); });
   }
+
+  // --- Skip-to-content button (Wix bound this in JS) ---
+  var skip = document.getElementById('SKIP_TO_CONTENT_BTN');
+  var main = document.getElementById('PAGES_CONTAINER');
+  if (skip && main) skip.addEventListener('click', function (e) { e.preventDefault(); main.setAttribute('tabindex', '-1'); main.focus({ preventScroll: true }); main.scrollIntoView(); });
+
+  // --- Parallax: drive the media by its section's view timeline, as Wix did ---
+  document.querySelectorAll('[data-parallax]').forEach(function (el) {
+    var layer = el.closest('[data-motion-part^="BG_LAYER"]'); var section = layer && layer.parentElement;
+    if (section) section.setAttribute('data-parallax-section', '');
+  });
 
   // --- Entrance animations ---
   var animated = document.querySelectorAll('[data-motion-enter]');

@@ -131,6 +131,7 @@ async function capture(browser, slug, mobile) {
     return `${attr}="${prefix}${pth === '/' ? (mobile ? '/' : '/') : pth + '/'}${rest}"`;
   });
   out = out.replace(/href="\/m\/\/"/g, 'href="/m/"');
+  out = out.replace(/(<link rel="alternate"[^>]*hreflang=[^>]*href=")\/m\//g, '$1/').replace(/(<link rel="alternate"[^>]*href=")\/m\/([^"]*"[^>]*hreflang)/g, '$1/$2');
   // canonical / alternate
   const desktopPath = slug ? `/${slug}/` : '/';
   out = out.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${ORIGIN}${desktopPath}">`);

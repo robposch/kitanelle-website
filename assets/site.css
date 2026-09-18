@@ -1,0 +1,32 @@
+/* Kitanelle static snapshot: additions on top of the captured Wix CSS.
+   Licensed fonts are aliased to free lookalikes under the same family names,
+   so the captured CSS keeps working. To use the real fonts later, replace the
+   src URLs below with licensed files. */
+
+@font-face { font-family: 'brandon-grot-w01-light'; src: url('/assets/fonts/LeagueSpartan-Light.woff2') format('woff2'); font-weight: 100 900; font-display: swap; size-adjust: 98.3%; ascent-override: 106.8%; descent-override: 38.7%; line-gap-override: 0%; }
+@font-face { font-family: 'brandon-grot-w05-light'; src: url('/assets/fonts/LeagueSpartan-Light.woff2') format('woff2'); font-weight: 100 900; font-display: swap; size-adjust: 76.5%; ascent-override: 130%; descent-override: 40.6%; line-gap-override: 0%; }
+@font-face { font-family: 'futura-lt-w01-light';    src: url('/assets/fonts/Jost-Light.woff2') format('woff2'); font-weight: 100 900; font-display: swap; ascent-override: 101.8%; descent-override: 30.2%; line-gap-override: 0%; }
+@font-face { font-family: 'futura-lt-w01-book';     src: url('/assets/fonts/Jost-Light.woff2') format('woff2'); font-weight: 100 900; font-display: swap; size-adjust: 105.5%; ascent-override: 99.7%; descent-override: 27.8%; line-gap-override: 0%; }
+
+/* Parallax backgrounds (Wix used a scroll-driven ViewTimeline; keyframes captured in data-parallax) */
+@keyframes kn-parallax { from { transform: translateY(20svh); } to { transform: translateY(calc(-20% + 40lvh)); } }
+@supports (animation-timeline: view()) {
+  [data-parallax] { animation: kn-parallax linear both; animation-timeline: view(); animation-range: cover; }
+}
+
+/* Entrance animation for elements Wix animated on scroll */
+[data-motion-enter].kn-hidden { opacity: 0; transform: translateY(24px); }
+[data-motion-enter] { transition: opacity .9s ease-out, transform .9s ease-out; }
+
+/* Language dropdown: open state (Wix toggled this with JS) */
+[data-testid="languages-dropdown-handle"][aria-expanded="true"] + [role="menu"] { display: block !important; visibility: visible !important; opacity: 1 !important; }
+[role="menu"] [role="menuitem"] { cursor: pointer; }
+
+/* Mobile menu open state, mirrors the classes Wix adds */
+.kn-menu-open { overflow: hidden; }
+
+/* Other licensed families referenced by the captured CSS: use the system font where present, else the free lookalike */
+@font-face { font-family: 'helvetica-w01-light'; src: local('Helvetica Neue Light'), local('HelveticaNeue-Light'), local('Helvetica Light'), local('Arial'); font-weight: 100 900; }
+@font-face { font-family: 'helvetica-w01-roman'; src: local('Helvetica Neue'), local('HelveticaNeue'), local('Helvetica'), local('Arial'); font-weight: 100 900; }
+@font-face { font-family: 'avenir-lt-w01_35-light1475496'; src: local('Avenir Light'), local('Avenir-Light'), url('/assets/fonts/Jost-Light.woff2') format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'din-next-w01-light'; src: local('DIN Next LT Pro Light'), url('/assets/fonts/Jost-Light.woff2') format('woff2'); font-weight: 100 900; }

@@ -37,6 +37,7 @@ function rewrite(text, ext) {
   if (ext === '.html') {
     t = t.replace(/(href|src|action|content)="\/(?!\/)/g, `$1="${BASE}/`);
     t = t.replace(/url\((['"]?)\/(?!\/)/g, `url($1${BASE}/`);
+    t = t.replace(/"\/assets\//g, `"${BASE}/assets/`); // paths inside embedded JSON (gallery data)
     t = t.replace(/location\.replace\('\/m'\+location\.pathname/, `location.replace('${BASE}/m'+location.pathname.slice(${BASE.length})`);
     t = t.replace(/location\.replace\(location\.pathname\.slice\(2\)/, `location.replace('${BASE}'+location.pathname.slice(${BASE.length + 2})`);
     t = t.replace(/location\.pathname\.indexOf\('\/m\/'\)===0/, `location.pathname.indexOf('${BASE}/m/')===0`);

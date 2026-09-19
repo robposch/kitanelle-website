@@ -38,3 +38,21 @@
 
 /* Keyboard focus ring (Wix applied this from its runtime) */
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: none; box-shadow: #fff 0 0 0 2px, #116dff 0 0 0 4px; }
+
+/* Image lightbox for the slide-show galleries (mirrors Wix's image zoom: light backdrop, thin dark controls) */
+#kn-lightbox { position: fixed; inset: 0; z-index: 100001; display: none; }
+#kn-lightbox.kn-open { display: block; }
+#kn-lightbox .kn-lb-backdrop { position: absolute; inset: 0; background: rgba(255, 255, 255, 0.92); }
+#kn-lightbox .kn-lb-stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+#kn-lightbox .kn-lb-img { max-width: min(72vw, 1400px); max-height: calc(100vh - 60px); width: auto; height: auto; object-fit: contain; pointer-events: auto; box-shadow: none; }
+#kn-lightbox button { position: absolute; background: none; border: 0; padding: 12px; cursor: pointer; color: #333; }
+#kn-lightbox button svg { display: block; fill: none; stroke: currentColor; stroke-width: 12; }
+#kn-lightbox .kn-lb-close { top: 38px; right: 42px; width: 52px; height: 52px; }
+#kn-lightbox .kn-lb-prev, #kn-lightbox .kn-lb-next { top: 50%; transform: translateY(-50%); width: 46px; height: 70px; }
+#kn-lightbox .kn-lb-prev { left: 36px; } #kn-lightbox .kn-lb-next { right: 36px; }
+html.kn-lightbox-open { overflow: hidden; }
+@media (max-width: 767px) {
+  #kn-lightbox .kn-lb-img { max-width: 92vw; max-height: 80vh; }
+  #kn-lightbox .kn-lb-close { top: 10px; right: 10px; width: 44px; height: 44px; }
+  #kn-lightbox .kn-lb-prev { left: 4px; } #kn-lightbox .kn-lb-next { right: 4px; }
+}

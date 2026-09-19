@@ -87,29 +87,52 @@
 
   // --- Slide-show galleries + lightbox (Wix rendered slides on demand; data injected by tools/galleries.mjs) ---
   var galleryData = null; try { var gd = document.getElementById('kn-galleries'); galleryData = gd && JSON.parse(gd.textContent); } catch (e) {}
-  var lightbox = null;
-  function openLightbox(items, index) {
-    if (!lightbox) {
-      lightbox = document.createElement('div'); lightbox.id = 'kn-lightbox'; lightbox.setAttribute('role', 'dialog'); lightbox.setAttribute('aria-modal', 'true');
-      lightbox.innerHTML = '<div class="kn-lb-backdrop"></div><div class="kn-lb-stage"><img class="kn-lb-img" alt=""></div>' +
-        '<button type="button" class="kn-lb-close" aria-label="Schließen"><svg viewBox="0 0 180 180"><path d="M5 5 L175 175 M175 5 L5 175"/></svg></button>' +
-        '<button type="button" class="kn-lb-prev" aria-label="Zurück"><svg viewBox="0 0 180 310"><path d="M170 10 L10 161 M10 150 L170 300"/></svg></button>' +
-        '<button type="button" class="kn-lb-next" aria-label="Weiter"><svg viewBox="0 0 180 310"><path d="M10 10 L170 161 M170 150 L10 300"/></svg></button>';
-      document.body.appendChild(lightbox);
-      lightbox.querySelector('.kn-lb-close').addEventListener('click', closeLightbox);
-      lightbox.querySelector('.kn-lb-backdrop').addEventListener('click', closeLightbox);
-      lightbox.querySelector('.kn-lb-prev').addEventListener('click', function () { stepLightbox(-1); });
-      lightbox.querySelector('.kn-lb-next').addEventListener('click', function () { stepLightbox(1); });
-      document.addEventListener('keydown', function (e) { if (!lightbox.classList.contains('kn-open')) return; if (e.key === 'Escape') closeLightbox(); else if (e.key === 'ArrowLeft') stepLightbox(-1); else if (e.key === 'ArrowRight') stepLightbox(1); });
-      var sx = null; lightbox.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
-      lightbox.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 40) stepLightbox(dx < 0 ? 1 : -1); }, { passive: true });
+  // Lightbox: Wix's own ImageZoom (desktop) / TouchMediaZoom (mobile) markup and stylesheet, driven by our script
+  var lightbox = null, lbItems = null, lbIndex = 0, lbCssLoaded = false;
+  function ensureLightboxCss() { if (lbCssLoaded) return; lbCssLoaded = true; var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = BASE + '/assets/css/wix-imagezoom.css'; document.head.appendChild(l); }
+  var SVG_CLOSE = '<path d="M5 5 L175 175 M175 5 L5 175"></path>', SVG_NEXT = '<path d="M10 10 L170 161 M170 150 L10 300"></path>', SVG_PREV = '<path d="M170 10 L10 161 M10 150 L170 300"></path>';
+  function buildLightbox() {
+    var d = document.createElement('div'); d.id = 'imageZoomComp'; d.setAttribute('tabindex', '0'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('data-testid', 'root');
+    if (isMobile) {
+      d.className = 'imageZoomComp c8MB3Z zwdzEv';
+      d.innerHTML = '<div class="UOelX6"><wow-image class="Qh0lWW"><img alt="" fetchpriority="high"></wow-image></div>' +
+        '<div class="BNGB3e" data-testid="close"><svg viewBox="0 0 180 180" class="MyPUn_" tabindex="0" role="button" aria-label="close" data-testid="closeIcon">' + SVG_CLOSE + '</svg></div>' +
+        '<div class="IUNMZY" data-testid="next"><svg viewBox="0 0 180 310" class="EAex_q" tabindex="0" role="button" aria-label="next" data-testid="nextIcon">' + SVG_NEXT + '</svg></div>' +
+        '<div class="tVi4X8" data-testid="prev"><svg viewBox="0 0 180 310" class="EAex_q" tabindex="0" role="button" aria-label="previous" data-testid="prevIcon">' + SVG_PREV + '</svg></div>';
+    } else {
+      d.className = 'TqRdRn';
+      d.innerHTML = '<div class="XBjG2Z"><wow-image class="Qh0lWW EpV4Qx"><img alt="" fetchpriority="high"></wow-image><div class="fIgtHO"></div></div>' +
+        '<div class="y3XiZp" data-testid="close"><svg viewBox="0 0 180 180" class="lGoczQ" tabindex="0" role="button" aria-label="close" data-testid="closeIcon">' + SVG_CLOSE + '</svg></div>' +
+        '<div class="D2s5n3" data-testid="next"><svg viewBox="0 0 180 310" class="_Sh7SY" tabindex="0" role="button" aria-label="next" data-testid="nextIcon">' + SVG_NEXT + '</svg></div>' +
+        '<div class="lQgw3h" data-testid="prev"><svg viewBox="0 0 180 310" class="_Sh7SY" tabindex="0" role="button" aria-label="previous" data-testid="prevIcon">' + SVG_PREV + '</svg></div>';
     }
-    lightbox.knItems = items; lightbox.knIndex = index; renderLightbox();
-    lightbox.classList.add('kn-open'); document.documentElement.classList.add('kn-lightbox-open'); lightbox.querySelector('.kn-lb-close').focus();
+    d.querySelector('[data-testid="close"]').addEventListener('click', closeLightbox);
+    d.querySelector('[data-testid="next"]').addEventListener('click', function (e) { e.stopPropagation(); stepLightbox(1); });
+    d.querySelector('[data-testid="prev"]').addEventListener('click', function (e) { e.stopPropagation(); stepLightbox(-1); });
+    d.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); else if (e.key === 'ArrowLeft') stepLightbox(-1); else if (e.key === 'ArrowRight') stepLightbox(1); });
+    var sx = null; d.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    d.addEventListener('touchend', function (e) { if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 40) stepLightbox(dx < 0 ? 1 : -1); }, { passive: true });
+    return d;
   }
-  function renderLightbox() { var it = lightbox.knItems[lightbox.knIndex]; var img = lightbox.querySelector('.kn-lb-img'); img.src = it.zoom; img.alt = it.alt || it.title || ''; lightbox.querySelector('.kn-lb-prev').style.display = lightbox.querySelector('.kn-lb-next').style.display = lightbox.knItems.length > 1 ? '' : 'none'; }
-  function stepLightbox(d) { var n = lightbox.knItems.length; lightbox.knIndex = (lightbox.knIndex + d + n) % n; renderLightbox(); }
-  function closeLightbox() { lightbox.classList.remove('kn-open'); document.documentElement.classList.remove('kn-lightbox-open'); }
+  function sizeLightbox() {
+    if (!lightbox) return; var it = lbItems[lbIndex]; var img = lightbox.querySelector('img'); var vw = window.innerWidth, vh = window.innerHeight;
+    if (isMobile) { img.style.cssText = 'width:' + vw + 'px;height:' + vh + 'px;object-fit:contain;object-position:center center'; return; }
+    var nw = it.w || img.naturalWidth || 4, nh = it.h || img.naturalHeight || 3; var aspect = nw / nh;
+    var h = Math.min(vh - 135, nh), w = Math.round(h * aspect);
+    if (w > vw - 100) { w = vw - 100; h = Math.round(w / aspect); }
+    var wrap = lightbox.querySelector('.XBjG2Z');
+    wrap.style.cssText = 'max-width:' + w + 'px;max-height:' + (vh - 30) + 'px;margin-top:15px;--width:' + w + 'px;--height:' + h + 'px';
+    img.style.cssText = 'width:' + w + 'px;height:' + h + 'px;object-fit:contain;object-position:center center';
+  }
+  function renderLightbox() { var it = lbItems[lbIndex]; var img = lightbox.querySelector('img'); img.src = it.zoom; img.alt = it.alt || it.title || ''; lightbox.setAttribute('data-testselectedimageindex', lbIndex); sizeLightbox(); }
+  function openLightbox(items, index) {
+    ensureLightboxCss(); lbItems = items; lbIndex = index;
+    if (!lightbox) { lightbox = buildLightbox(); document.body.appendChild(lightbox); }
+    renderLightbox(); document.documentElement.classList.add('kn-lightbox-open'); lightbox.focus();
+  }
+  function stepLightbox(d) { var n = lbItems.length; lbIndex = (lbIndex + d + n) % n; renderLightbox(); }
+  function closeLightbox() { if (lightbox) { lightbox.remove(); lightbox = null; } document.documentElement.classList.remove('kn-lightbox-open'); }
+  window.addEventListener('resize', sizeLightbox);
 
   if (galleryData) Object.keys(galleryData).forEach(function (id) {
     var g = document.getElementById(id); var items = galleryData[id]; if (!g || !items || !items.length) return;

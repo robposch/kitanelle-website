@@ -10,7 +10,8 @@ const ROOT = path.resolve(new URL('..', import.meta.url).pathname);
 const DE_PAGES = ['', 'unser-ansatz', 'gruppen', 'about-3', 'über-uns', 'anmeldung', 'jobs', 'kontakt', 'sponsoren', 'impressum'];
 export const PAGES = [...DE_PAGES, ...DE_PAGES.map(p => p ? 'fr/' + p : 'fr')];
 const MOBILE_BREAKPOINT = 767;
-const GOOGLE_FORM_URL = ''; // e.g. https://docs.google.com/forms/d/e/.../viewform?embedded=true
+const GOOGLE_FORM_URL = '';
+const TABLET_VIEWPORT_SCRIPT = `<script>(function(){var u=navigator.userAgent;if(/iPad/.test(u)||(/Android/.test(u)&&!/Mobile/.test(u))||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)){var v=document.getElementById('wixDesktopViewport')||document.querySelector('meta[name=viewport]');if(v){v.setAttribute('content','width=980, user-scalable=yes');v.id='wixTabletViewport';}}})();</script>`; // e.g. https://docs.google.com/forms/d/e/.../viewform?embedded=true
 
 // Commercial fonts Wix licenses on the site's behalf. Not copied; aliased in assets/site.css.
 const LICENSED_FONT_RE = /brandon|futura|avenir|din-next|helvetica|proxima|gotham|frutiger/i;
@@ -139,6 +140,7 @@ async function capture(browser, slug, mobile) {
     `<meta name="generator" content="kitanelle static snapshot ${new Date().toISOString().slice(0, 10)}">`,
     `<script>(function(){var m=location.pathname.indexOf('/m/')===0;var w=window.innerWidth<=${MOBILE_BREAKPOINT};if(w&&!m)location.replace('/m'+location.pathname+location.search+location.hash);else if(!w&&m)location.replace(location.pathname.slice(2)+location.search+location.hash);})();</script>`,
     mobile ? '' : `<link rel="alternate" media="only screen and (max-width: ${MOBILE_BREAKPOINT}px)" href="/m${desktopPath}">`,
+    mobile ? '' : TABLET_VIEWPORT_SCRIPT, // Wix serves width=980 to tablets (wixTabletViewport)
     `<link rel="stylesheet" href="/assets/site.css">`,
     `<script src="/assets/site.js" defer></script>`,
   ].filter(Boolean).join('\n');

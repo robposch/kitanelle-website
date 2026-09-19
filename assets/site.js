@@ -89,11 +89,13 @@
   var galleryData = null; try { var gd = document.getElementById('kn-galleries'); galleryData = gd && JSON.parse(gd.textContent); } catch (e) {}
   // Lightbox: Wix's own ImageZoom (desktop) / TouchMediaZoom (mobile) markup and stylesheet, driven by our script
   var lightbox = null, lbItems = null, lbIndex = 0, lbCssLoaded = false;
+  // Wix shows the touch lightbox on any touch device (phones and tablets), regardless of the page layout
+  var isTouch = isMobile || (navigator.maxTouchPoints > 0) || ('ontouchstart' in window) || (window.matchMedia && matchMedia('(pointer: coarse)').matches);
   function ensureLightboxCss() { if (lbCssLoaded) return; lbCssLoaded = true; var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = BASE + '/assets/css/wix-imagezoom.css'; document.head.appendChild(l); }
   var SVG_CLOSE = '<path d="M5 5 L175 175 M175 5 L5 175"></path>', SVG_NEXT = '<path d="M10 10 L170 161 M170 150 L10 300"></path>', SVG_PREV = '<path d="M170 10 L10 161 M10 150 L170 300"></path>';
   function buildLightbox() {
     var d = document.createElement('div'); d.id = 'imageZoomComp'; d.setAttribute('tabindex', '0'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('data-testid', 'root');
-    if (isMobile) {
+    if (isTouch) {
       d.className = 'imageZoomComp c8MB3Z zwdzEv';
       d.innerHTML = '<div class="UOelX6"><wow-image class="Qh0lWW"><img alt="" fetchpriority="high"></wow-image></div>' +
         '<div class="BNGB3e" data-testid="close"><svg viewBox="0 0 180 180" class="MyPUn_" tabindex="0" role="button" aria-label="close" data-testid="closeIcon">' + SVG_CLOSE + '</svg></div>' +
@@ -116,7 +118,7 @@
   }
   function sizeLightbox() {
     if (!lightbox) return; var it = lbItems[lbIndex]; var img = lightbox.querySelector('img'); var vw = window.innerWidth, vh = window.innerHeight;
-    if (isMobile) { img.style.cssText = 'width:' + vw + 'px;height:' + vh + 'px;object-fit:contain;object-position:center center'; return; }
+    if (isTouch) { img.style.cssText = 'width:' + vw + 'px;height:' + vh + 'px;object-fit:contain;object-position:center center'; return; }
     var nw = it.w || img.naturalWidth || 4, nh = it.h || img.naturalHeight || 3; var aspect = nw / nh;
     var h = Math.min(vh - 135, nh), w = Math.round(h * aspect);
     if (w > vw - 100) { w = vw - 100; h = Math.round(w / aspect); }
